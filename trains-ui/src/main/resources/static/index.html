@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Paremus Service Fabric Trains Example</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin="anonymous"/>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin="anonymous"></script>
+    <script src="leaflet/leaflet-embed.js"></script>
+    
+  </head>
+  
+  <body>
+    <div class="container-fluid">
+    <div class="row">
+      <div class="span4 logo">
+        <img border="0" src="img/logo-paremus.png" alt="Paremus Ltd">
+      </div>
+      <div class="span4">
+        <h4>Welcome to the Trains Example</h4>
+      </div>
+    </div>
+    
+    <div class="row">    
+      <div class="span6">
+        <div id="messages" class="lead"/>
+      </div>
+    </div>
+   <div id="mainMap"></div>
+  </body>
+    <script>
+    
+      initmap();
+    
+      displayMarker = function(trainInfo) {
+      
+              var plotll = new L.LatLng(trainInfo.current.coordinates.latitude,
+                                        trainInfo.current.coordinates.longitude, true);
+              var plotmark = new L.Marker(plotll);
+              plotmark.data=trainInfo;
+              map.addLayer(plotmark);
+              plotmark.bindPopup("<h3>"+ trainInfo.current.name+"</h3>"+
+                 "<p>Operator: " + trainInfo.operator +"<p>Train: " + trainInfo.identifier
+                 + "<p>Status: " + trainInfo.status + "<p>Next waypoint: " + 
+                 (trainInfo.next ? trainInfo.next.name : "UNKNOWN"));
+          
+               window.setTimeout(function() { 
+                              map.removeLayer(plotmark);
+                          }, 60000);
+          
+          };
+      
+      showMessage = function(message) {
+       
+              element = document.getElementById("messages");
+          
+              while (element.hasChildNodes()) {
+                  element.removeChild(element.lastChild);
+              }
+          
+              node = document.createElement("div");
+              node.innerHTML = message;
+              element.appendChild(node);
+          };
+    
+      setupEventSource = function() {
+      
+              var url = window.location.protocol + "//" + window.location.hostname;
+        
+              if(window.location.port) {
+                  url += ":" + window.location.port;
+              }
+            
+              url += window.location.pathname;
+              
+              url = url.substring(0, url.lastIndexOf("static/index.html")) + "data";
+      
+              source = new EventSource(url);
+      
+              source.onopen = function() {
+                      showMessage("Connected to server");
+                      window.setTimeout(function() { 
+                              if(document.getElementById("messages").lastChild.innerHTML === "Connected to server") {
+                                  showMessage("");
+                              }
+                          }, 5000);
+                  };
+              source.onmessage = function (evt) {
+                      displayMarker(JSON.parse(evt.data));
+                  };
+                  
+              source.onerror = function (evt) {
+                      showMessage("Event Stream failed... retrying in 5 seconds");
+                      source.close();
+                      window.setTimeout(setupEventSource, 5000);
+                  };
+                  
+              source.addEventListener('end', function(evt) {
+                     doUpdate("Event Source is closing " + evt.data + " retrying in 5 seconds");
+                     source.close();
+                     window.setTimeout(setupEventSource, 5000);
+                 }, false);
+                
+              source.addEventListener('dataerror', function(evt) {
+                   doUpdate("Bad data received " + evt.data);
+                }, false);
+          };
+
+      setupEventSource();
+    </script>
+</html>

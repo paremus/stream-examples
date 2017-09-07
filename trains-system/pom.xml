@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>reactor</artifactId>
+        <groupId>com.paremus.example.trains</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>system</artifactId>
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.paremus.fabric</groupId>
+                <artifactId>paremus-system-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <indexes>
+                        <index>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>index</artifactId>
+                            <version>${project.parent.version}</version>
+                        </index>
+                    </indexes>
+                    <localURLs>${local.index.policy}</localURLs>
+                    <schemaValidation>false</schemaValidation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-system</id>
+                        <goals>
+                            <goal>build-system</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

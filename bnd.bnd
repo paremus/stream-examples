@@ -1,0 +1,10 @@
+# Automatically export any package annotated with @Version in its package-info.java
+-exportcontents: ${packages;VERSIONED}
+  
+# Generate an OSGi Contract Requirement for bundles that depend on the Servlet API
+# (see https://www.osgi.org/portable-java-contract-definitions/)
+-contract: JavaServlet
+  
+# Force Declarative Services bundles to declare a requirement for DS version 1.3
+# even when they only use features from a previous version
+-dsannotations-options: extender

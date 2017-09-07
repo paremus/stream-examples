@@ -1,0 +1,8 @@
+<system xmlns="http://schema.paremus.com/sf/1.2" version="1.0.0" name="hello" boundary="fibre" repopath="">
+    <description>
+        A Train Location feed and and viewer
+    </description>
+    <admin group="demo"/>
+    
+    <system.part name="trains"/>
+</system>
